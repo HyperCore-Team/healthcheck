@@ -8,7 +8,7 @@ import (
 	"strings"
 	"io/ioutil"
 	"encoding/json"
-	"github.com/multiformats/go-multiaddr"
+    "github.com/multiformats/go-multiaddr"
 	mh "github.com/multiformats/go-multihash"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -163,6 +163,10 @@ func main() {
     // fmt.Println("Local P2P ID:", host.ID())
 
 	for _, line := range lines {
+		if len(line) < 64 {
+			continue;
+		}
+		
 		peerMA, err := multiaddr.NewMultiaddr(line)
         if err != nil {
             panic(err)
