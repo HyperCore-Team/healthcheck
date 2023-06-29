@@ -8,7 +8,7 @@ import (
 	"strings"
 	"io/ioutil"
 	"encoding/json"
-    "github.com/multiformats/go-multiaddr"
+	"github.com/multiformats/go-multiaddr"
 	mh "github.com/multiformats/go-multihash"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -40,6 +40,36 @@ func prettyPrint(i interface{}) string {
 func main() {
 	var participants = make(map[string]*Participant);
 	var pillarInfoByProducerAddress = make(map[types.Address]*embedded.PillarInfo);
+	var bootstrap = "/dns/bootstrap.zenon.community/tcp/55055/p2p/12D3KooWBVQYaz3yuJor8oW7bUqoAGDZDpFBGbGerL3SprHn57pQ";
+
+	peerMA, err := multiaddr.NewMultiaddr(bootstrap)
+	if err != nil {
+		panic(err)
+	}
+
+	peerAddrInfo, err := peer.AddrInfoFromP2pAddr(peerMA)
+	if err != nil {
+		panic(err)
+	}
+
+	decoded, err := mh.Decode([]byte(peerAddrInfo.ID))
+	if err != nil {
+		panic(err)
+	}
+
+	producerAddress := types.PubKeyToAddress(decoded.Digest[4:])
+
+	participants["*Bootstrap"] = &Participant{
+		PillarInfo: &embedded.PillarInfo{
+			Name: "*Bootstrap",
+			BlockProducingAddress: producerAddress,
+		},
+		Keygen: false,
+		Online: false,
+		ID: peerAddrInfo.ID,
+	};
+
+	pillarInfoByProducerAddress[producerAddress] = participants["*Bootstrap"].PillarInfo;
 
 	// TODO: connect to a go-zenon node
 	rpc, err := rpc_client.NewRpcClient("ws://127.0.0.1:35998")
@@ -121,7 +151,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed to read file: %s\n", err)
 	}
 
-	lines := strings.Split(string(content), "\n")
+	lines := strings.Split(bootstrap + "\n" + string(content), "\n")
 	host, err := libp2p.New(context.Background(), libp2p.ListenAddrStrings("/ip4/127.0.0.1/tcp/0"))
     if err != nil {
         panic(err)
