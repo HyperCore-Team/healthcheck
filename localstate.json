@@ -1,0 +1,10 @@
+{
+    "pub_key": "NOT_USED",
+    "local_data": "LEAVE_EMPTY",
+    "participant_keys": [
+        "REPLACE_WITH_PARTICIPANT_KEYS_FROM_LOCALSTATE",
+        "...",
+        "REPLACE_WITH_PARTICIPANT_KEYS_FROM_LOCALSTATE"
+    ],
+    "local_party_key": "NOT_USED"
+}
